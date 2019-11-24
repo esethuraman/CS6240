@@ -1,0 +1,12 @@
+*/target/
+*/input/
+*/sample_input/
+*/output/
+*/*Output/
+*/stashed_out*/
+*.idea
+*.jar
+*/sample/*
+*/datasets/*
+*.odt
+*.iml
