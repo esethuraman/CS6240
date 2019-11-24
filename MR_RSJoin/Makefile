@@ -5,7 +5,7 @@
 hadoop.root=/usr/local/hadoop
 jar.name=mr-demo-1.0.jar
 jar.path=target/${jar.name}
-job.name=fc.TwitterTriad
+job.name=CommoditiesFlowFinder
 local.input=sample_input
 local.output=output/intermediate_1
 local.final_output=output/final
