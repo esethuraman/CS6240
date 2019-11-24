@@ -42,8 +42,8 @@ public class CommoditiesFlowFinder extends Configured implements Tool {
             try {
                 CommodityInfo commodityInfo = getCommodityInfo(contents);
                 if (commodityInfo != null) {
-                    Text mapKey = new Text(commodityInfo.getCode());
-                    Text mapValue = new Text(commodityInfo.getCountry()+"-"+commodityInfo.getFlow());
+                    Text mapKey = getMapperEmitKey(commodityInfo);
+                    Text mapValue = getMapperEmitValue(commodityInfo);
                     context.write(mapKey, mapValue);
 
                 }
@@ -52,6 +52,14 @@ public class CommoditiesFlowFinder extends Configured implements Tool {
             }
 
 
+        }
+
+        private Text getMapperEmitKey(CommodityInfo commodityInfo) {
+            return new Text(commodityInfo.getCode() + "-" + commodityInfo.getYear());
+        }
+
+        private Text getMapperEmitValue(CommodityInfo commodityInfo) {
+            return new Text(commodityInfo.getFlow() + "-" +commodityInfo.getCountry());
         }
 
         private CommodityInfo getCommodityInfo(String[] contents) {
@@ -75,13 +83,41 @@ public class CommoditiesFlowFinder extends Configured implements Tool {
 
     }
 
-//    public static class TriadReducer extends Reducer<LongWritable, Text, LongWritable, Text> {
-//        @Override
-//        public void reduce(final LongWritable firstUserId, final Iterable<Text> followLevelOneInfo, final Context context) throws IOException, InterruptedException {
-//
-//
-//        }
-//    }
+    public static class TriadReducer extends Reducer<Text, Text, Text, Text> {
+
+        @Override
+        public void reduce(final Text key, final Iterable<Text> values, final Context context) throws IOException, InterruptedException {
+            List<CommodityInfo> exports = new LinkedList<>();
+            List<CommodityInfo> imports = new LinkedList<>();
+
+            for (Text value : values) {
+                CommodityInfo info = parseReducerValue(value);
+                if (info.getFlow().equals("Export")) {
+                    exports.add(info);
+                } else {
+                    imports.add(info);
+                }
+            }
+
+            for (CommodityInfo exportInfo : exports) {
+                for (CommodityInfo importInfo : imports){
+                    Text value = new Text(exportInfo.getCountry() + "-" + importInfo.getCountry());
+                    context.write(key, value);
+                }
+            }
+
+
+
+        }
+
+        private CommodityInfo parseReducerValue(Text value) {
+            CommodityInfo info = new CommodityInfo();
+            String[] contents = value.toString().split("-");
+            info.setFlow(contents[0]);
+            info.setCountry(contents[1]);
+            return info;
+        }
+    }
 
     @Override
     public int run(final String[] args) throws Exception {
@@ -92,10 +128,10 @@ public class CommoditiesFlowFinder extends Configured implements Tool {
         jobConf.set("mapreduce.output.textoutputformat.separator", "\t");
 
         job.setMapperClass(TokenizerMapper.class);
-//        job.setReducerClass(TriadReducer.class);
+        job.setReducerClass(TriadReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
-        job.setNumReduceTasks(0);
+//        job.setNumReduceTasks(0);
         FileInputFormat.addInputPath(job, new Path("/home/elavazhagan/Documents/GraduateCourse/Fall19/MR/project/CS6240/MR_RSJoin/sample_input"));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
         return job.waitForCompletion(true) ? 0 : 1;
