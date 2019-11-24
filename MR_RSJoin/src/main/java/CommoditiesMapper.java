@@ -47,7 +47,7 @@ public class CommoditiesMapper
     }
 
     private Text getMapperEmitValue(CommodityInfo commodityInfo) {
-
+//        System.out.println("=====================> " + commodityInfo.getWeight());
         return new Text(String.join("-",
                 commodityInfo.getFlow(),
                 commodityInfo.getCountry(),
@@ -62,7 +62,11 @@ public class CommoditiesMapper
             info.setCountry(contents[1]);
             info.setYear(Integer.parseInt(contents[2]));
             info.setCode(contents[3]);
-            info.setFlow(contents[4]);
+            if (contents[4].contains("xport")) {
+                info.setFlow("Export");
+            } else {
+                info.setFlow("Import");
+            }
             info.setAmoundInUSD(Long.parseLong(contents[5]));
             info.setWeight(Double.parseDouble(contents[6]));
             info.setQuantityName(contents[7]);
