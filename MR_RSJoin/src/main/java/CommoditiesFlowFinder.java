@@ -32,7 +32,7 @@ public class CommoditiesFlowFinder extends Configured implements Tool {
         job.setReducerClass(CommoditiesReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
-//        job.setGroupingComparatorClass(CommodityIdComparator.class);
+        job.setGroupingComparatorClass(CommodityIdComparator.class);
         job.setSortComparatorClass(YearComparator.class);
         FileInputFormat.addInputPath(job, new Path("/home/elavazhagan/Documents/GraduateCourse/Fall19/MR/project/CS6240/MR_RSJoin/sample_input"));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
