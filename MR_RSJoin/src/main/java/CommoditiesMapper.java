@@ -2,6 +2,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class CommoditiesMapper
         extends Mapper<Object, Text, Text, Text> {
@@ -37,29 +38,39 @@ public class CommoditiesMapper
     }
 
     private Text getMapperEmitKey(CommodityInfo commodityInfo) {
-        return new Text(commodityInfo.getCode() + "-" + commodityInfo.getYear());
+
+        return new Text(String.join("-",
+                commodityInfo.getCode(),
+                String.valueOf(commodityInfo.getYear())
+//                String.valueOf(commodityInfo.getWeight())
+        ));
     }
 
     private Text getMapperEmitValue(CommodityInfo commodityInfo) {
-        return new Text(commodityInfo.getFlow() + "-" +commodityInfo.getCountry());
+
+        return new Text(String.join("-",
+                commodityInfo.getFlow(),
+                commodityInfo.getCountry(),
+                String.valueOf(commodityInfo.getWeight())));
     }
 
     private CommodityInfo getCommodityInfo(String[] contents) {
         CommodityInfo info = null;
+
         if((contents.length > 0) && (contents[0].length() > 0)) {
             info = new CommodityInfo();
             info.setCountry(contents[1]);
             info.setYear(Integer.parseInt(contents[2]));
             info.setCode(contents[3]);
-//                info.setCommodity(contents[4]);
             info.setFlow(contents[4]);
             info.setAmoundInUSD(Long.parseLong(contents[5]));
             info.setWeight(Double.parseDouble(contents[6]));
             info.setQuantityName(contents[7]);
             info.setQuantity(Double.parseDouble(contents[8]));
             info.setCategory(contents[9]);
-            info.setWeight(contents.length);
+
         }
+
         return info;
     }
 
