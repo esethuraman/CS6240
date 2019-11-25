@@ -11,7 +11,7 @@ import org.apache.spark.sql.types.StructField
 import org.apache.spark.sql.types.StringType
 import org.apache.spark.sql.functions._
 
-object Trade{
+object Trade {
 
   def main(args: Array[String]) {
 
@@ -39,12 +39,14 @@ object Trade{
       .format("csv")
       .option("header", "true") //first line in file has headers
       .option("mode", "DROPMALFORMED")
-      .load(args(0))
+      .load(input_path)
 
-    var df_export = df.filter(df("flow")==="Export").filter((df("flow")==="Re-Export"))
-    var df_import = df.filter(df("flow")==="Import").filter((df("flow")==="Re-Import"))
+    var df_export = df.filter(df("flow") === "Export").filter((df("flow") === "Re-Export"))
 
-    df_export.join(df_import, Seq("year", "comm_code")).saveAsTextFile("output/result.csv")
+    var df_import = df.filter(df("flow") === "Import").filter((df("flow") === "Re-Import"))
+
+    var df_res = df_export.join(df_import, Seq("year", "comm_code"))
+    df_res.write.format("txt").save(output_path)
 
   }
-
+}
