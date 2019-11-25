@@ -2,7 +2,6 @@ package cf;
 
 import java.io.*;
 import java.util.*;
-import java.util.zip.GZIPInputStream;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -10,9 +9,6 @@ import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.*;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
@@ -23,11 +19,9 @@ import org.apache.log4j.Logger;
 public class CommodityFlowFinder extends Configured implements Tool {
 	private static final Logger logger = LogManager.getLogger(CommodityFlowFinder.class);
 
-        // Mapper class performing the map tasks to find Path2
+	// Mapper class performing the map tasks to join on comm_code and year
 	public static class CommodityMapper extends Mapper<Object, Text, Text, Text> {
-		// private Map<String, String> exportRecords = new HashMap<>();
 		private HashSet<String> exportRecords = new HashSet<String>();
-		//private Text outputValue = new Text();
 		private String recordStr;
 
 			@Override
@@ -59,7 +53,8 @@ public class CommodityFlowFinder extends Configured implements Tool {
 							String flow = line.split(",")[4];
 
 							// FILTER_EXPORT
-							if (flow.equals("Export") && year.equals("2014") && commCode.equals("10410")) {
+//							if (flow.equals("Export") && year.equals("2014") && commCode.equals("10410")) {
+							if (flow.equals("Export")) {
 								// Building the hash map follower: [followee] pairs
 								exportRecords.add(line);
 								//context.write(new Text(index), new Text(line));
@@ -82,25 +77,25 @@ public class CommodityFlowFinder extends Configured implements Tool {
 				String year = recordStr.split(",")[2];
 				String commCode = recordStr.split(",")[3];
 				String flow = recordStr.split(",")[4];
-//				logger.info("TESTING1: "+exportRecords.size());
-				//logger.info("TESTING1: "+flow+ " "+ year+ " "+ commCode);
 				// MAX_FILTER
-				if (flow.equals("Import") && year.equals("2014") && commCode.equals("10410")) {
+//				if (flow.equals("Import") && year.equals("2014") && commCode.equals("10410")) {
+				if (flow.equals("Import")) {
 					// computing the number of triangles
-					logger.info("TESTING: "+exportRecords.size());
 					Iterator<String> i = exportRecords.iterator();
 					while (i.hasNext()) {
 						String line = i.next();
 //						String indexE = line.split(",")[0];
-//						String yearE = line.split(",")[2];
-//						String commCodeE = line.split(",")[3];
+						String yearExport = line.split(",")[2];
+						String commCodeExport = line.split(",")[3];
 //						String flowE = line.split(",")[4];
 
-						context.write(null, new Text(recordStr+" : "+ line));
+						if (year.equals(yearExport) && commCode.equals(commCodeExport)) {
+							context.write(null, new Text(recordStr+" : "+ line));
+						}
 						//logger.info("OUTPUT: "+recordStr+" : "+ line);
 					}
 				}
-				}
+			}
 			}
 		}
 
