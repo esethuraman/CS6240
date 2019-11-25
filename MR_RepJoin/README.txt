@@ -1,4 +1,4 @@
-Hadoop MapReduce Triangle Count
+Hadoop MapReduce Commodities Flow Finder
 Fall 2019
 
 Code author
