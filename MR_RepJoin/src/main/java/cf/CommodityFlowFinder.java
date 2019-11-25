@@ -42,15 +42,15 @@ public class CommodityFlowFinder extends Configured implements Tool {
 								new InputStreamReader((new FileInputStream(
 												new File(p.getName())))));
 
-						// index,country_or_area,year,comm_code,flow,trade_usd,weight_kg,quantity_name,quantity,category
+						// country_or_area,year,comm_code,commodity,flow,trade_usd,weight_kg,quantity_name,quantity,category
 						String line;
 						// For each record in the file
 						while ((line = rdr.readLine()) != null) {
 
 							line = line.replace(", ", " ");
-							String index = line.split(",")[0];
-							String year = line.split(",")[2];
-							String commCode = line.split(",")[3];
+							logger.info("TESTING: "+line);
+							String year = line.split(",")[1];
+							String commCode = line.split(",")[2];
 							String flow = line.split(",")[4];
 
 							// FILTER_EXPORT
@@ -71,9 +71,8 @@ public class CommodityFlowFinder extends Configured implements Tool {
 			while (itr.hasMoreTokens()) {
 				recordStr = itr.nextToken("\n");
 				recordStr = recordStr.replace(", ", " ");
-				String index = recordStr.split(",")[0];
-				String year = recordStr.split(",")[2];
-				String commCode = recordStr.split(",")[3];
+				String year = recordStr.split(",")[1];
+				String commCode = recordStr.split(",")[2];
 				String flow = recordStr.split(",")[4];
 
 				// FILTER_IMPORT
@@ -82,9 +81,8 @@ public class CommodityFlowFinder extends Configured implements Tool {
 					while (i.hasNext()) {
 						String line = i.next();
 						line = line.replace(", ", " ");
-//						String indexE = line.split(",")[0];
-						String yearExport = line.split(",")[2];
-						String commCodeExport = line.split(",")[3];
+						String yearExport = line.split(",")[1];
+						String commCodeExport = line.split(",")[2];
 //						String flowE = line.split(",")[4];
 
 						// Join on year and commCode
