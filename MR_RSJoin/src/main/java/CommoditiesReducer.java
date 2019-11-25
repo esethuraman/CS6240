@@ -23,7 +23,11 @@ public class CommoditiesReducer extends Reducer<Text, Text, Text, Text> {
 
         for (CommodityInfo exportInfo : exports) {
             for (CommodityInfo importInfo : imports){
-                Text value = new Text(exportInfo.getCountry() + "-" + importInfo.getCountry());
+                Text value = new Text(String.join("-",
+                        exportInfo.getCountry(),
+                        String.valueOf(exportInfo.getWeight()),
+                        importInfo.getCountry(),
+                        String.valueOf(importInfo.getWeight())));
                 context.write(key, value);
             }
         }
@@ -34,9 +38,15 @@ public class CommoditiesReducer extends Reducer<Text, Text, Text, Text> {
 
     private CommodityInfo parseReducerValue(Text value) {
         CommodityInfo info = new CommodityInfo();
-        String[] contents = value.toString().split("-");
-        info.setFlow(contents[0]);
-        info.setCountry(contents[1]);
+        try {
+            String[] contents = value.toString().split("-");
+            info.setFlow(contents[0]);
+            info.setCountry(contents[1]);
+            info.setWeight(Double.parseDouble(contents[2]));
+        } catch (Exception e) {
+            System.out.println("------> " + e.getMessage() + String.join("<>", value.toString().split("-")));
+        }
+
         return info;
     }
 }

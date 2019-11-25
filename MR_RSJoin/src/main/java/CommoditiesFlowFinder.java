@@ -1,15 +1,8 @@
-import java.io.IOException;
-import java.util.*;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.Tool;
@@ -32,8 +25,11 @@ public class CommoditiesFlowFinder extends Configured implements Tool {
         job.setReducerClass(CommoditiesReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
-        job.setGroupingComparatorClass(CommodityIdComparator.class);
-        job.setSortComparatorClass(YearComparator.class);
+
+        job.setPartitionerClass(CustomPartitioner.class);
+        job.setGroupingComparatorClass(GroupingComparator.class);
+        job.setSortComparatorClass(KeyComparator.class);
+
         FileInputFormat.addInputPath(job, new Path("/home/elavazhagan/Documents/GraduateCourse/Fall19/MR/project/CS6240/MR_RSJoin/sample_input"));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
         return job.waitForCompletion(true) ? 0 : 1;

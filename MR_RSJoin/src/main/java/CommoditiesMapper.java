@@ -41,13 +41,12 @@ public class CommoditiesMapper
 
         return new Text(String.join("-",
                 commodityInfo.getCode(),
-                String.valueOf(commodityInfo.getYear())
-//                String.valueOf(commodityInfo.getWeight())
+                String.valueOf(commodityInfo.getYear()),
+                String.valueOf(commodityInfo.getWeight())
         ));
     }
 
     private Text getMapperEmitValue(CommodityInfo commodityInfo) {
-//        System.out.println("=====================> " + commodityInfo.getWeight());
         return new Text(String.join("-",
                 commodityInfo.getFlow(),
                 commodityInfo.getCountry(),

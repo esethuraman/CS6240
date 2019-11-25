@@ -2,9 +2,9 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 
-public class CommodityIdComparator extends WritableComparator {
+public class GroupingComparator extends WritableComparator {
 
-    public CommodityIdComparator() {
+    public GroupingComparator() {
         super(Text.class, true);
     }
 
@@ -13,7 +13,16 @@ public class CommodityIdComparator extends WritableComparator {
         try {
             String id1 = ((Text) first).toString().split("-")[0];
             String id2 = ((Text) second).toString().split("-")[0];
-            return id1.compareTo(id2);
+
+            int result = id1.compareTo(id2);
+            if (result != 0) {
+                return result;
+            } else{
+                String year1 = ((Text) first).toString().split("-")[1];
+                String year2 = ((Text) second).toString().split("-")[1];
+                return year2.compareTo(year1);
+            }
+
         } catch (NullPointerException ex) {
             System.out.println("----------------> " + first);
         }
