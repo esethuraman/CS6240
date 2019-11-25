@@ -1,3 +1,5 @@
+package scala
+
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.log4j.LogManager
@@ -42,18 +44,7 @@ object Trade{
     var df_export = df.filter(df("flow")==="Export")
     var df_import = df.filter(df("flow")==="Import")
 
-    df_export.join(df_import, Seq("year", "comm_code")).saveAsTextFile("result.csv")
+    df_export.join(df_import, Seq("year", "comm_code")).saveAsTextFile("output/result.csv")
 
   }
 
-//  // Split the line in two parts, convert them to int and return them as a pair
-//  def convert(line: String): (Int, Int) = {
-//    return (line.split(",")(0).toInt, line.split(",")(1).toInt)
-//  }
-//
-//  // Split the line in two parts, convert them to int then reverse the relation and return them as a pair
-//  def reverse(line: String): (Int, Int) = {
-//    return (line.split(",")(1).toInt, line.split(",")(0).toInt)
-//  }
-
-}
