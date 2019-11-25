@@ -1,26 +1,26 @@
-//import org.apache.spark.SparkConf
-//import org.apache.spark.SparkContext
-//import org.apache.log4j.LogManager
-//import org.apache.log4j.Level
-//import org.apache.spark.rdd.RDD
-//import org.apache.spark.sql.SparkSession
-//import org.apache.spark.sql.types.StructType
-//import org.apache.spark.sql.types.StructField
-//import org.apache.spark.sql.types.StringType
-//import org.apache.spark.sql.functions._
+import org.apache.spark.SparkConf
+import org.apache.spark.SparkContext
+import org.apache.log4j.LogManager
+import org.apache.log4j.Level
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.types.StructField
+import org.apache.spark.sql.types.StringType
+import org.apache.spark.sql.functions._
 
 object Trade{
 
   def main(args: Array[String]) {
 
-//    val logger: org.apache.log4j.Logger = LogManager.getRootLogger
-//
-//    if (args.length != 2) {
-//      logger.error("Usage:\nTrade.Data <input dir> <output dir>")
-//      System.exit(1)
-//    }
-//    val conf = new SparkConf().setAppName("Trade")
-//    val sc = new SparkContext(conf)
+    val logger: org.apache.log4j.Logger = LogManager.getRootLogger
+
+    if (args.length != 2) {
+      logger.error("Usage:\nTrade.Data <input dir> <output dir>")
+      System.exit(1)
+    }
+    val conf = new SparkConf().setAppName("Trade")
+    val sc = new SparkContext(conf)
 
     val spark = org.apache.spark.sql.SparkSession.builder
       .master("local")
