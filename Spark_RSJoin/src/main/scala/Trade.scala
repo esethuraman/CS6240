@@ -41,8 +41,8 @@ object Trade{
       .option("mode", "DROPMALFORMED")
       .load(args(0))
 
-    var df_export = df.filter(df("flow")==="Export")
-    var df_import = df.filter(df("flow")==="Import")
+    var df_export = df.filter(df("flow")==="Export").filter((df("flow")==="Re-Export"))
+    var df_import = df.filter(df("flow")==="Import").filter((df("flow")==="Re-Import"))
 
     df_export.join(df_import, Seq("year", "comm_code")).saveAsTextFile("output/result.csv")
 
