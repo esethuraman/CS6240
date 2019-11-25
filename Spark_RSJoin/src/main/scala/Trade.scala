@@ -41,12 +41,16 @@ object Trade {
       .option("mode", "DROPMALFORMED")
       .load(input_path)
 
-    var df_export = df.filter(df("flow") === "Export").filter((df("flow") === "Re-Export"))
+    var df_export = df.filter(df("flow") === "Export").filter((df("flow") === "Re-Export")).withColumnRenamed("quantity", "export_quantity")
+      .withColumnRenamed("trade_usd","export_trade_usd")
+      .withColumnRenamed("quantity_name", "export_quantity_name").withColumnRenamed("flow", "export_flow")
+      .withColumnRenamed("category", "expory_category").withColumnRenamed("country_or_area", "export_country_or_area") .withColumnRenamed("category", "expory_category")
+      .withColumnRenamed("weight_kg", "export_weight_kg").withColumnRenamed("index", "export_index")
 
     var df_import = df.filter(df("flow") === "Import").filter((df("flow") === "Re-Import"))
 
     var df_res = df_export.join(df_import, Seq("year", "comm_code"))
-    df_res.write.format("txt").save(output_path)
+    df_res.write.format("csv").save(output_path)
 
   }
 }

@@ -4,10 +4,10 @@
 # -----------------------------------------------------------
 spark.root=/usr/local/spark
 hadoop.root=/usr/local/hadoop
-app.name=Twitter Count
+app.name=Trade join
 jar.name=spark-demo.jar
 maven.jar.name=spark-demo-1.0.jar
-job.name=tc.TwitterCountMain
+job.name=scala.Trade
 local.master=local[4]
 local.input=input
 local.output=output
