@@ -1,4 +1,4 @@
-Hadoop MapReduce Commodities Flow Finder
+Hadoop MapReduce Trade Recommendation System Rep Join
 Fall 2019
 
 Code author
