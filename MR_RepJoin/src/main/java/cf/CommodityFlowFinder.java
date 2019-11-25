@@ -47,18 +47,15 @@ public class CommodityFlowFinder extends Configured implements Tool {
 						// For each record in the file
 						while ((line = rdr.readLine()) != null) {
 
+							line = line.replace(", ", " ");
 							String index = line.split(",")[0];
 							String year = line.split(",")[2];
 							String commCode = line.split(",")[3];
 							String flow = line.split(",")[4];
 
 							// FILTER_EXPORT
-//							if (flow.equals("Export") && year.equals("2014") && commCode.equals("10410")) {
 							if (flow.equals("Export")) {
-								// Building the hash map follower: [followee] pairs
 								exportRecords.add(line);
-								//context.write(new Text(index), new Text(line));
-								//logger.info(index+" : "+line);
 							}
 						}
 					}
@@ -73,26 +70,27 @@ public class CommodityFlowFinder extends Configured implements Tool {
 			final StringTokenizer itr = new StringTokenizer(value.toString());
 			while (itr.hasMoreTokens()) {
 				recordStr = itr.nextToken("\n");
+				recordStr = recordStr.replace(", ", " ");
 				String index = recordStr.split(",")[0];
 				String year = recordStr.split(",")[2];
 				String commCode = recordStr.split(",")[3];
 				String flow = recordStr.split(",")[4];
-				// MAX_FILTER
-//				if (flow.equals("Import") && year.equals("2014") && commCode.equals("10410")) {
+
+				// FILTER_IMPORT
 				if (flow.equals("Import")) {
-					// computing the number of triangles
 					Iterator<String> i = exportRecords.iterator();
 					while (i.hasNext()) {
 						String line = i.next();
+						line = line.replace(", ", " ");
 //						String indexE = line.split(",")[0];
 						String yearExport = line.split(",")[2];
 						String commCodeExport = line.split(",")[3];
 //						String flowE = line.split(",")[4];
 
+						// Join on year and commCode
 						if (year.equals(yearExport) && commCode.equals(commCodeExport)) {
 							context.write(null, new Text(recordStr+" : "+ line));
 						}
-						//logger.info("OUTPUT: "+recordStr+" : "+ line);
 					}
 				}
 			}
