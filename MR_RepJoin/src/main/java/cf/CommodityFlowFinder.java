@@ -47,6 +47,7 @@ public class CommodityFlowFinder extends Configured implements Tool {
 						// For each record in the file
 						while ((line = rdr.readLine()) != null) {
 
+							line = line.replace(", ", " ");
 							String index = line.split(",")[0];
 							String year = line.split(",")[2];
 							String commCode = line.split(",")[3];
@@ -69,6 +70,7 @@ public class CommodityFlowFinder extends Configured implements Tool {
 			final StringTokenizer itr = new StringTokenizer(value.toString());
 			while (itr.hasMoreTokens()) {
 				recordStr = itr.nextToken("\n");
+				recordStr = recordStr.replace(", ", " ");
 				String index = recordStr.split(",")[0];
 				String year = recordStr.split(",")[2];
 				String commCode = recordStr.split(",")[3];
@@ -79,6 +81,7 @@ public class CommodityFlowFinder extends Configured implements Tool {
 					Iterator<String> i = exportRecords.iterator();
 					while (i.hasNext()) {
 						String line = i.next();
+						line = line.replace(", ", " ");
 //						String indexE = line.split(",")[0];
 						String yearExport = line.split(",")[2];
 						String commCodeExport = line.split(",")[3];
