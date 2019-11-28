@@ -16,7 +16,7 @@ public class CommoditiesFlowFinder extends Configured implements Tool {
     @Override
     public int run(final String[] args) throws Exception {
         final Configuration conf = getConf();
-        final Job job = Job.getInstance(conf, "Twitter Triad");
+        final Job job = Job.getInstance(conf, "Trade Recommendation System");
         job.setJarByClass(CommoditiesFlowFinder.class);
         final Configuration jobConf = job.getConfiguration();
         jobConf.set("mapreduce.output.textoutputformat.separator", "\t");
@@ -30,7 +30,8 @@ public class CommoditiesFlowFinder extends Configured implements Tool {
         job.setGroupingComparatorClass(GroupingComparator.class);
         job.setSortComparatorClass(KeyComparator.class);
 
-        FileInputFormat.addInputPath(job, new Path("/home/elavazhagan/Documents/GraduateCourse/Fall19/MR/project/CS6240/MR_RSJoin/sample_input"));
+//        "/home/elavazhagan/Documents/GraduateCourse/Fall19/MR/project/CS6240/MR_RSJoin/sample_input"
+        FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
         return job.waitForCompletion(true) ? 0 : 1;
     }

@@ -12,6 +12,7 @@ public class CommoditiesReducer extends Reducer<Text, Text, Text, Text> {
         List<CommodityInfo> exports = new LinkedList<>();
         List<CommodityInfo> imports = new LinkedList<>();
 
+//        Seggregating imports and exports data based on "Flow" parameter.
         for (Text value : values) {
             CommodityInfo info = parseReducerValue(value);
             if (info.getFlow().equals("Export")) {
@@ -21,6 +22,7 @@ public class CommoditiesReducer extends Reducer<Text, Text, Text, Text> {
             }
         }
 
+//        cartesian product of export and import data.
         for (CommodityInfo exportInfo : exports) {
             for (CommodityInfo importInfo : imports){
                 Text value = new Text(String.join("-",

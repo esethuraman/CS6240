@@ -7,7 +7,7 @@ jar.name=mr-demo-1.0.jar
 jar.path=target/${jar.name}
 job.name=CommoditiesFlowFinder
 local.input=sample_input
-local.output=output/intermediate_1
+local.output=output
 local.final_output=output/final
 # Pseudo-Cluster Execution
 hdfs.user.name=elavazhagan
@@ -22,7 +22,7 @@ aws.input=input
 aws.output=output/intermediate_1
 aws.final_output=output/final
 aws.log.dir=log
-aws.num.nodes=10
+aws.num.nodes=5
 aws.instance.type=m4.large
 # -----------------------------------------------------------
 
@@ -112,7 +112,7 @@ upload-app-aws:
 # Main EMR launch.
 aws: jar upload-app-aws delete-output-aws
 	aws emr create-cluster \
-		--name "ReducerJoin MAX_40_000 LARGE" \
+		--name "Trade recommendations 2x_FULL_SMALL" \
 		--release-label ${aws.emr.release} \
 		--instance-groups '[{"InstanceCount":${aws.num.nodes},"InstanceGroupType":"CORE","InstanceType":"${aws.instance.type}"},{"InstanceCount":1,"InstanceGroupType":"MASTER","InstanceType":"${aws.instance.type}"}]' \
 	    --applications Name=Hadoop \
