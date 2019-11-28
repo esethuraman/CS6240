@@ -10,6 +10,8 @@ import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.types.StructField
 import org.apache.spark.sql.types.StringType
 import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types.FloatType
+
 
 object Trade {
 
@@ -21,14 +23,11 @@ object Trade {
       logger.error("Usage:\nTrade.Data <input dir> <output dir>")
       System.exit(1)
     }
-    val conf = new SparkConf().setAppName("Trade")
-    val sc = new SparkContext(conf)
 
-    getTrade(args(0), args(1), sc)
+    getTrade(args(0), args(1))
   }
 
-  // Find the cartesian product of two dataset
-  def getTrade(input_path: String, output_path: String, conf: SparkContext) = {
+  def getTrade(input_path: String, output_path: String) = {
 
     val spark = org.apache.spark.sql.SparkSession.builder
       .master("local")
@@ -41,16 +40,30 @@ object Trade {
       .option("mode", "DROPMALFORMED")
       .load(input_path)
 
-    var df_export = df.filter(df("flow") === "Export").filter((df("flow") === "Re-Export")).withColumnRenamed("quantity", "export_quantity")
-      .withColumnRenamed("trade_usd","export_trade_usd")
-      .withColumnRenamed("quantity_name", "export_quantity_name").withColumnRenamed("flow", "export_flow")
-      .withColumnRenamed("category", "expory_category").withColumnRenamed("country_or_area", "export_country_or_area") .withColumnRenamed("category", "expory_category")
-      .withColumnRenamed("weight_kg", "export_weight_kg").withColumnRenamed("index", "export_index")
+    //  add this for filtering with re-export: || df("flow") === "Re-Export") and || df("flow") === "Re-Import"
 
-    var df_import = df.filter(df("flow") === "Import").filter((df("flow") === "Re-Import"))
+    // filter on export and rename the columns
+    var df_export = df.filter(df("flow") === "Export")
+      .withColumnRenamed("quantity", "exportQuantity").withColumnRenamed("trade_usd","exportTradeUsd")
+      .withColumnRenamed("quantity_name", "exportQuantityName").withColumnRenamed("flow", "exportFlow")
+      .withColumnRenamed("category", "exportCategory").withColumnRenamed("country_or_area", "exportCountry")
+      .withColumnRenamed("commodity", "exportCommodity").withColumn("exportWeight", df("weight_kg").cast(FloatType))
 
-    var df_res = df_export.join(df_import, Seq("year", "comm_code"))
+
+    // filter on import and rename the columns
+    var df_import = df.filter(df("flow") === "Import")
+      .withColumnRenamed("quantity", "importQuantity").withColumnRenamed("trade_usd","importTradeUsd")
+      .withColumnRenamed("quantity_name", "importQuantityName").withColumnRenamed("flow", "importFlow")
+      .withColumnRenamed("category", "importCategory").withColumnRenamed("country_or_area", "importCountry")
+      .withColumnRenamed("commodity", "importCommodity").withColumn("importWeight", df("weight_kg").cast(FloatType))
+
+    // join on comm_code and year and then sort by "exportWeight" in desc order
+    var df_res = df_export.join(df_import, Seq("comm_code", "year")).sort(desc("exportWeight"), desc("importWeight")).select("exportCountry", "exportWeight", "importCountry", "importWeight")
+
+    // save the result in csv format
     df_res.write.format("csv").save(output_path)
-
   }
 }
+
+//val spark: Nothing = org.apache.spark.sql.SparkSession.builder.master("local").appName("Spark CSV Reader").getOrCreate
+//var df = spark.read.format("csv").option("header", "true").option("mode", "DROPMALFORMED").load("Documents/MR_practice/comm_code_10410.csv")
