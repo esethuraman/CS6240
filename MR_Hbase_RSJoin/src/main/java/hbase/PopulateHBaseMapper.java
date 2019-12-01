@@ -1,11 +1,18 @@
+package hbase;
+
 import models.CommodityInfo;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
 
-public class CommoditiesMapper
-        extends Mapper<Object, Text, Text, Text>{
+public class PopulateHBaseMapper extends  Mapper<Object, Text, Text, Text> {
+
+    HbaseDao hbaseDao;
+
+    public PopulateHBaseMapper() throws IOException {
+        hbaseDao = new HbaseDao();
+    }
 
     /*
     Each input value fed in to mapper is of the form (followerId,userId). Note that followerId
@@ -22,25 +29,34 @@ public class CommoditiesMapper
                 .replace(", ", " ")
                 .split(",");
 
+        System.out.println("BEFORE TRY IN MAPPER....");
         try {
             CommodityInfo commodityInfo = getCommodityInfo(contents);
+            System.out.println("MAPPER CALL INVOKED........");
 //            Ignoring noise and processing only valid data
             if (commodityInfo != null) {
                 Text mapKey = getMapperEmitKey(commodityInfo);
                 Text mapValue = getMapperEmitValue(commodityInfo);
                 context.write(mapKey, mapValue);
+//                context.write(mapKey, new Text("THIS IS FROM NEW "));
+
+                System.out.println("INVOKED HBASE CALL....");
+                hbaseDao.writeData(mapKey.toString(), commodityInfo);
+                System.out.println("HBASE CALL FINISHED....");
+
 
 //                Data expansion.
-                for (int i = 0; i < 2; i++) {
-                    commodityInfo.setWeight(Math.random() * 1000000);
-                    mapKey = getMapperEmitKey(commodityInfo);
-                    mapValue = getMapperEmitValue((commodityInfo));
-                    context.write(mapKey, mapValue);
-                }
+//                for (int i = 0; i < 2; i++) {
+//                    commodityInfo.setWeight(Math.random() * 1000000);
+//                    mapKey = getMapperEmitKey(commodityInfo);
+//                    mapValue = getMapperEmitValue((commodityInfo));
+//                    context.write(mapKey, mapValue);
+//                }
 
             }
         } catch (Exception e) {
 //                No quantity type commodities are silently ignored using exception
+            System.out.println("EXCEPTION CAUGHT.....");
         }
 
 
@@ -107,5 +123,4 @@ public class CommoditiesMapper
 
         return info;
     }
-
 }
