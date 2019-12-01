@@ -8,6 +8,14 @@ import java.io.IOException;
 
 public class HBaseHandson
 {
+
+    static byte[] FAMILY_PERSONAL = "personal".getBytes();
+    static byte[] FAMILY_PROFESSIONAL = "professional".getBytes();
+    static byte[] QUALIFIER_NAME = "name".getBytes();
+    static byte[] QUALIFIER_CITY = "city".getBytes();
+    static byte[] row1 = Bytes.toBytes("ela");
+    static byte[] row2 = Bytes.toBytes("hari");
+
     public static void main(String[] args) throws Exception
     {
         String dnsName = "ec2-3-81-9-217.compute-1.amazonaws.com";
@@ -20,11 +28,11 @@ public class HBaseHandson
         Connection connection = ConnectionFactory.createConnection(conf);
         Admin admin = connection.getAdmin();
 
-//        createTable(admin);
+        createTable(admin);
     
 //        listTables(admin);
 
-//        createData(connection, admin);
+        createData(connection, admin);
 
         readData(connection);
 
@@ -58,32 +66,32 @@ public class HBaseHandson
     }
     private static void readData(Connection connection) throws IOException {
 
-        try (Table table = connection.getTable(TableName.valueOf("Table1"))) {
-            String family1 = "Family1";
-            String qualifier1 = "qualifier1";
-            byte[] row1 = Bytes.toBytes("row1");
+        try (Table table = connection.getTable(TableName.valueOf("Names"))) {
 
-            Get g = new Get(row1);
-            Result result = table.get(g);
-            byte[] value = result.getValue(family1.getBytes(), qualifier1.getBytes());
 
-            System.out.println("VALUE : ==> " + new String(value));
-//            Get get = new Get(Bytes.toBytes("row1"));
-//
-//            Result result = table.get(get);
-//
-//            byte[] name = result.getValue(Bytes.toBytes("personal"), Bytes.toBytes("name"));
-//
-//            byte[] city = result.getValue(Bytes.toBytes("personal"), Bytes.toBytes("city"));
-//
-//            byte[] lecturer = result.getValue(Bytes.toBytes("professional"), Bytes.toBytes("lecturer"));
-//
-//            System.out.println("READING DATA ..... ");
-//            System.out.println(
-//                    "Name " + Bytes.toString(name) + "\n"
-//                    + "City " + Bytes.toString(city) + "\n"
-//                    + "Lecturer " + Bytes.toString(lecturer)
-//            );
+            byte[][] rows = new byte[][]{row1, row2};
+
+            for (byte[] row : rows) {
+                Get g = new Get(row);
+                Result result = table.get(g);
+                System.out.println("----------------------------------------------------");
+
+                System.out.println( " DATA FOR ROW : " + new String(row));
+                byte[] value = result.getValue(FAMILY_PERSONAL, QUALIFIER_NAME);
+                System.out.println("VALUE : ==> " + new String(value));
+
+                value = result.getValue(FAMILY_PERSONAL, QUALIFIER_CITY);
+                System.out.println("VALUE : ==> " + new String(value));
+
+                value = result.getValue(FAMILY_PROFESSIONAL, QUALIFIER_NAME);
+                System.out.println("VALUE : ==> " + new String(value));
+
+                value = result.getValue(FAMILY_PROFESSIONAL, QUALIFIER_CITY);
+                System.out.println("VALUE : ==> " + new String(value));
+
+                System.out.println("----------------------------------------------------");
+            }
+
         }
     }
 
@@ -96,36 +104,21 @@ public class HBaseHandson
     }
 
     public static void createData(Connection connection, Admin admin) throws IOException {
-       try(Table table = connection.getTable(TableName.valueOf("Table1"))) {
+       try(Table table = connection.getTable(TableName.valueOf("Names"))) {
 
-           String family1 = "Family1";
-           String qualifier1 = "qualifier1";
-           byte[] row1 = Bytes.toBytes("row1");
            Put p = new Put(row1);
-           p.addImmutable(family1.getBytes(), qualifier1.getBytes(), Bytes.toBytes("cell_data"));
+           p.addImmutable(FAMILY_PERSONAL, QUALIFIER_NAME, Bytes.toBytes("ELAVAZHAGAN SETHURAMAN"));
+           p.addImmutable(FAMILY_PROFESSIONAL, QUALIFIER_NAME, Bytes.toBytes("ELA"));
+           p.addImmutable(FAMILY_PERSONAL, QUALIFIER_CITY, Bytes.toBytes("THIRUTHURAIPOONDI"));
+           p.addImmutable(FAMILY_PROFESSIONAL, QUALIFIER_CITY, Bytes.toBytes("BOSTON"));
            table.put(p);
 
-
-           //           Put p = new Put(Bytes.toBytes("row1"));
-
-//           Put put = new Put(Bytes.toBytes("row1"));
-
-//           put.addColumn(Bytes.toBytes("personal"),
-//                   Bytes.toBytes("name"),
-//                   Bytes.toBytes("Mapreduce"));
-//
-//           put.addColumn(Bytes.toBytes("personal"),
-//                   Bytes.toBytes("city"),
-//                   Bytes.toBytes("Boston"));
-//
-//           put.addColumn(Bytes.toBytes("professional"),
-//                   Bytes.toBytes("lecturer"),
-//                   Bytes.toBytes("Mirek"));
-//
-//           put.addColumn(Bytes.toBytes("professional"),
-//                   Bytes.toBytes("lecturer"),
-//                   Bytes.toBytes("XYZ"));
-
+           p = new Put(row2);
+           p.addImmutable(FAMILY_PERSONAL, QUALIFIER_NAME, Bytes.toBytes("HARIPRASATH SIVANDANAM"));
+           p.addImmutable(FAMILY_PROFESSIONAL, QUALIFIER_NAME, Bytes.toBytes("HARI"));
+           p.addImmutable(FAMILY_PERSONAL, QUALIFIER_CITY, Bytes.toBytes("BENGALURU"));
+           p.addImmutable(FAMILY_PROFESSIONAL, QUALIFIER_CITY, Bytes.toBytes("BOSTON"));
+           table.put(p);
 
            System.out.println("Data successsfully inserted.....");
            System.out.println("******************************************");
@@ -133,25 +126,13 @@ public class HBaseHandson
     }
 
     private static void createTable(Admin admin) throws IOException {
-        TableName table1 = TableName.valueOf("Table1");
-        String family1 = "Family1";
-        String family2 = "Family2";
+        TableName table1 = TableName.valueOf("Names");
 
         HTableDescriptor tableDescriptor = new HTableDescriptor(table1);
-        tableDescriptor.addFamily(new HColumnDescriptor(family1));
-        tableDescriptor.addFamily(new HColumnDescriptor(family2));
+        tableDescriptor.addFamily(new HColumnDescriptor(FAMILY_PERSONAL));
+        tableDescriptor.addFamily(new HColumnDescriptor(FAMILY_PROFESSIONAL));
         admin.createTable(tableDescriptor);
 
-       /* // Instantiating table descriptor class
-        HTableDescriptor tableDescriptor = new
-                HTableDescriptor(TableName.valueOf("e1"));
 
-        // Adding column families to table descriptor
-        tableDescriptor.addFamily(new HColumnDescriptor("personal"));
-        tableDescriptor.addFamily(new HColumnDescriptor("professional"));
-
-
-        // Execute the table through admin
-        admin.createTable(tableDescriptor);*/
     }
 }
