@@ -1,7 +1,7 @@
 [{
   "Classification": "hbase-site",
   "Properties": {
-    "hbase.rootdir": "s3://hbase-sample"}
+    "hbase.rootdir": "s3://hbase-sample/first"}
 },
   {
     "Classification": "hbase",

@@ -17,7 +17,7 @@ hdfs.output=output
 # AWS EMR Execution
 aws.emr.release=emr-5.26.0
 aws.region=us-east-1
-aws.bucket.name=elattp-asnmnt2-mr
+aws.bucket.name=hbase-sample
 aws.subnet.id=subnet-5e1a6260
 aws.input=input
 aws.output=output/intermediate_1
@@ -121,8 +121,8 @@ aws: jar upload-app-aws delete-output-aws
 		--log-uri s3://${aws.bucket.name}/${aws.log.dir} \
 		--use-default-roles \
 		--enable-debugging \
-		--auto-terminate
-# 		--configurations file://config/configurations.json
+		--auto-terminate \
+		--configurations file://config/configurations.json
 
 # Download output from S3.
 download-output-aws: clean-local-output
