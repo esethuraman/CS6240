@@ -17,9 +17,9 @@ hdfs.output=output
 # AWS EMR Execution
 aws.emr.release=emr-5.26.0
 aws.region=us-east-1
-aws.bucket.name=hbase-sample
+aws.bucket.name=cs6240-hbase
 aws.subnet.id=subnet-5e1a6260
-aws.input=sample-input
+aws.input=input
 aws.output=output/intermediate_1
 aws.final_output=output/final
 aws.log.dir=log
@@ -113,7 +113,7 @@ upload-app-aws:
 # Main EMR launch.
 aws: jar upload-app-aws delete-output-aws
 	aws emr create-cluster \
-		--name "Trade recommendations 2x_FULL_SMALL" \
+		--name "HBASE READ BY PREFIX ON EXPANDED DATA" \
 		--release-label ${aws.emr.release} \
 		--instance-groups '[{"InstanceCount":${aws.num.nodes},"InstanceGroupType":"CORE","InstanceType":"${aws.instance.type}"},{"InstanceCount":1,"InstanceGroupType":"MASTER","InstanceType":"${aws.instance.type}"}]' \
 	    --applications Name=HBase \

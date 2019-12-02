@@ -23,11 +23,13 @@ public class HbaseWriter extends Configured implements Tool {
     }
 
     public static void main(String[] args) throws Exception {
-//        System.out.println("MAIN INVOKED ");
+        System.out.println("MAIN INVOKED ");
 //        ToolRunner.run(new HbaseWriter(), args);
 
         System.out.println("WRITE DONE.. NOW GONNA READ....");
-        String res = new HBaseReader().readData();
+        String res = new HBaseReader().readDataByPrefix();
+
+//        String res = new HBaseReader().readData();
         System.out.println("READ RESULT  " + res);
         logger.info("READ RESULT  " + res);
         System.out.println("donee,,....");
