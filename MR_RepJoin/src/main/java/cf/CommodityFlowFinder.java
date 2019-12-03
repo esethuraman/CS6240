@@ -21,7 +21,8 @@ public class CommodityFlowFinder extends Configured implements Tool {
 
 	// Mapper class performing the map tasks to join on comm_code and year
 	public static class CommodityMapper extends Mapper<Object, Text, Text, Text> {
-		private HashSet<String> exportRecords = new HashSet<String>();
+//		private HashSet<String> exportRecords = new HashSet<String>();
+		private Map<String, String> exportRecords = new HashMap<String, String>();
 		private String recordStr;
 
 			@Override
@@ -33,7 +34,7 @@ public class CommodityFlowFinder extends Configured implements Tool {
 
 					if (files == null || files.length == 0) {
 						throw new RuntimeException(
-								"Edges not set in DistributedCache");
+								"Data not set in DistributedCache");
 					}
 
 					// Read all files in the DistributedCache
@@ -48,14 +49,20 @@ public class CommodityFlowFinder extends Configured implements Tool {
 						while ((line = rdr.readLine()) != null) {
 
 							line = line.replace(", ", " ");
-							logger.info("TESTING: "+line);
-							String year = line.split(",")[1];
-							String commCode = line.split(",")[2];
-							String flow = line.split(",")[4];
+							logger.info("map");
+							logger.info("here is the line:"+line+":ends");
+							String [] lineList = line.split(",");
+							String country = lineList[0];
+							String year = lineList[1];
+							String commCode = lineList[2];
+							String commodity = lineList[3];
+							String flow = lineList[4];
+//							String trade_usd = lineList[5];
+							String weight = lineList[6];
 
 							// FILTER_EXPORT
-							if (flow.equals("Export")) {
-								exportRecords.add(line);
+							if (flow.contains("xport")) {
+								exportRecords.put(commCode+","+year+","+weight, flow+","+country+","+weight);
 							}
 						}
 					}
@@ -71,23 +78,45 @@ public class CommodityFlowFinder extends Configured implements Tool {
 			while (itr.hasMoreTokens()) {
 				recordStr = itr.nextToken("\n");
 				recordStr = recordStr.replace(", ", " ");
-				String year = recordStr.split(",")[1];
-				String commCode = recordStr.split(",")[2];
-				String flow = recordStr.split(",")[4];
+				String [] recordStrList = recordStr.split(",");
+
+				String country = recordStrList[0];
+				String year = recordStrList[1];
+				String commCode = recordStrList[2];
+//				String commodity = recordStrList[3];
+				String flow = recordStrList[4];
+				String weight = recordStrList[6];
 
 				// FILTER_IMPORT
 				if (flow.equals("Import")) {
-					Iterator<String> i = exportRecords.iterator();
-					while (i.hasNext()) {
-						String line = i.next();
-						line = line.replace(", ", " ");
-						String yearExport = line.split(",")[1];
-						String commCodeExport = line.split(",")[2];
-//						String flowE = line.split(",")[4];
+					for (Map.Entry<String,String> recordExport : exportRecords.entrySet())   {
+						String [] keyList = recordExport.getKey().split(",");
+						String [] valueList = recordExport.getValue().split(",");
+
+						logger.info("key");
+						logger.info(recordExport.getKey());
+						logger.info("value");
+						logger.info(recordExport.getValue());
+
+						String commCodeExport = keyList[0];
+						String yearExport = keyList[1];
+						String weightExport = keyList[2];
+						String flowExport = valueList[0];
+						String countryExport = valueList[1];
+						String weightExportValue = valueList[2];
+
+
+						logger.info("recordStrList");
+						logger.info(commCode+"-"+year+"-"+weight);
+						logger.info("keyList");
+						logger.info(commCodeExport+"-"+yearExport+"-"+weightExport);
+						logger.info("valueList");
+						logger.info(flowExport+"-"+countryExport+"-"+weightExportValue);
 
 						// Join on year and commCode
 						if (year.equals(yearExport) && commCode.equals(commCodeExport)) {
-							context.write(null, new Text(recordStr+" : "+ line));
+							context.write(new Text(commCode+"-"+year+"-"+weight),
+									new Text(countryExport+"-"+weightExport+"+"+country+"-"+weight));
 						}
 					}
 				}
