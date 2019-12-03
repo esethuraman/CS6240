@@ -2,11 +2,11 @@
 
 # Customize these paths for your environment.
 # -----------------------------------------------------------
-hadoop.root=/home/russia/Downloads/hadoop-2.8.5
+hadoop.root=/usr/local/hadoop
 jar.name=mr-repjoin-1.0.jar
 jar.path=target/${jar.name}
 job.name=cf.CommodityFlowFinder
-local.input=input/data.csv
+local.input=sample/*
 local.output=output
 # Pseudo-Cluster Execution
 hdfs.user.name=russia

@@ -49,8 +49,8 @@ public class CommodityFlowFinder extends Configured implements Tool {
 						while ((line = rdr.readLine()) != null) {
 
 							line = line.replace(", ", " ");
-							logger.info("map");
-							logger.info("here is the line:"+line+":ends");
+//							logger.info("map");
+//							logger.info("here is the line:"+line+":ends");
 							String [] lineList = line.split(",");
 							String country = lineList[0];
 							String year = lineList[1];
@@ -62,7 +62,9 @@ public class CommodityFlowFinder extends Configured implements Tool {
 
 							// FILTER_EXPORT
 							if (flow.contains("xport")) {
-								exportRecords.put(commCode+","+year+","+weight, flow+","+country+","+weight);
+								flow = "Export";
+								exportRecords.put(commCode+"-"+year+"-"+weight,
+										flow+"-"+country+"-"+weight);
 							}
 						}
 					}
@@ -88,54 +90,61 @@ public class CommodityFlowFinder extends Configured implements Tool {
 				String weight = recordStrList[6];
 
 				// FILTER_IMPORT
-				if (flow.equals("Import")) {
+				if (flow.contains("mport")) {
 					for (Map.Entry<String,String> recordExport : exportRecords.entrySet())   {
-						String [] keyList = recordExport.getKey().split(",");
-						String [] valueList = recordExport.getValue().split(",");
 
-						logger.info("key");
-						logger.info(recordExport.getKey());
-						logger.info("value");
-						logger.info(recordExport.getValue());
+//						System.out.printf(" KEY %s VALUE %s%n", recordExport.getKey(), recordExport.getValue());
+						String [] keyList = recordExport.getKey().split("-");
+						String [] valueList = recordExport.getValue().split("-");
 
-						String commCodeExport = keyList[0];
-						String yearExport = keyList[1];
-						String weightExport = keyList[2];
-						String flowExport = valueList[0];
-						String countryExport = valueList[1];
-						String weightExportValue = valueList[2];
+						try {
+							String commCodeExport = keyList[0];
+							String yearExport = keyList[1];
+							String weightExport = keyList[2];
+							String flowExport = valueList[0];
+							String countryExport = valueList[1];
+							String weightExportValue = valueList[2];
 
+							// Join on year and commCode
+							if (year.equals(yearExport) && commCode.equals(commCodeExport)) {
+								context.write(new Text(commCode+"-"+year+"-"+weight),
+										new Text(countryExport+"-"+weightExport+"-"+country+"-"+weight));
+							}
+						} catch (ArrayIndexOutOfBoundsException e) {
 
-						logger.info("recordStrList");
-						logger.info(commCode+"-"+year+"-"+weight);
-						logger.info("keyList");
-						logger.info(commCodeExport+"-"+yearExport+"-"+weightExport);
-						logger.info("valueList");
-						logger.info(flowExport+"-"+countryExport+"-"+weightExportValue);
-
-						// Join on year and commCode
-						if (year.equals(yearExport) && commCode.equals(commCodeExport)) {
-							context.write(new Text(commCode+"-"+year+"-"+weight),
-									new Text(countryExport+"-"+weightExport+"+"+country+"-"+weight));
 						}
+
 					}
 				}
 			}
 			}
 		}
 
+	public static class CommoditiesReducer extends Reducer<Text, Text, Text, Text> {
 
-	@Override
+		@Override
+		public void reduce(final Text key, final Iterable<Text> values, final Context context) throws IOException, InterruptedException {
+			for (Text value : values){
+				context.write(key, value);
+			}
+		}
+	}
+			@Override
 	public int run(final String[] args) throws Exception {
 		Configuration conf = new Configuration();
 		Job job = new Job(conf, "Replicated Join");
 		job.setJarByClass(CommodityFlowFinder.class);
 
 		job.setMapperClass(CommodityMapper.class);
-		job.setNumReduceTasks(0);
+		job.setReducerClass(CommoditiesReducer.class);
+//		job.setNumReduceTasks(0);
+
 
 		TextInputFormat.setInputPaths(job, new Path(args[0]));
 		TextOutputFormat.setOutputPath(job, new Path(args[1]));
+
+		job.setGroupingComparatorClass(GroupingComparator.class);
+		job.setSortComparatorClass(KeyComparator.class);
 
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
