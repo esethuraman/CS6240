@@ -15,10 +15,10 @@ hdfs.output=output
 # AWS EMR Execution
 aws.emr.release=emr-5.26.0
 aws.region=us-east-1
-aws.bucket.name=benjanda-bucket
-aws.subnet.id=subnet-6356553a
+aws.bucket.name=cs6240-hbase
+aws.subnet.id=subnet-5e1a6260
 aws.input=input
-aws.output=outputRep2015
+aws.output=output
 aws.log.dir=log
 aws.num.nodes=5
 aws.instance.type=m4.large
@@ -110,15 +110,16 @@ upload-app-aws:
 # Main EMR launch.
 aws: jar upload-app-aws delete-output-aws
 	aws emr create-cluster \
-		--name "Rep2015 5 Workers MR Cluster" \
+		--name "MR Rep Join With Hbase Entire dataset" \
 		--release-label ${aws.emr.release} \
 		--instance-groups '[{"InstanceCount":${aws.num.nodes},"InstanceGroupType":"CORE","InstanceType":"${aws.instance.type}"},{"InstanceCount":1,"InstanceGroupType":"MASTER","InstanceType":"${aws.instance.type}"}]' \
 	    --applications Name=Hadoop \
-	    --steps '[{"Args":["${job.name}","s3://${aws.bucket.name}/${aws.input}/data.csv","s3://${aws.bucket.name}/${aws.output}"],"Type":"CUSTOM_JAR","Jar":"s3://${aws.bucket.name}/${jar.name}","ActionOnFailure":"TERMINATE_CLUSTER","Name":"Custom JAR"}]' \
+	    --steps '[{"Args":["${job.name}","s3://${aws.bucket.name}/${aws.input}","s3://${aws.bucket.name}/${aws.output}"],"Type":"CUSTOM_JAR","Jar":"s3://${aws.bucket.name}/${jar.name}","ActionOnFailure":"TERMINATE_CLUSTER","Name":"Custom JAR"}]' \
 		--log-uri s3://${aws.bucket.name}/${aws.log.dir} \
 		--use-default-roles \
 		--enable-debugging \
-		--auto-terminate
+		--auto-terminate \
+        --configurations file://config/configurations.json
 
 # Download output from S3.
 download-output-aws: clean-local-output
