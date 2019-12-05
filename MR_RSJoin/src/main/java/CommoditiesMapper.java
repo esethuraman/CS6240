@@ -31,13 +31,14 @@ public class CommoditiesMapper
                 context.write(mapKey, mapValue);
 
 //                Data expansion.
-                for (int i = 0; i < 2; i++) {
-                    commodityInfo.setWeight(Math.random() * 1000000);
+
+/*                for (int i = 2; i <= 3; i++) {
+                    commodityInfo.setWeight(commodityInfo.getWeight() + 1000 * i);
                     mapKey = getMapperEmitKey(commodityInfo);
                     mapValue = getMapperEmitValue((commodityInfo));
                     context.write(mapKey, mapValue);
                 }
-
+*/
             }
         } catch (Exception e) {
 //                No quantity type commodities are silently ignored using exception

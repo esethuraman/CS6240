@@ -5,6 +5,7 @@
 hadoop.root=/usr/local/hadoop
 jar.name=mr-demo-1.0.jar
 jar.path=target/${jar.name}
+# job.name=CommoditiesFlowFinder
 job.name=CommoditiesFlowFinder
 local.input=sample_input
 local.output=output
@@ -19,7 +20,7 @@ aws.region=us-east-1
 aws.bucket.name=elattp-asnmnt2-mr
 aws.subnet.id=subnet-5e1a6260
 aws.input=input
-aws.output=output/intermediate_1
+aws.output=output
 aws.final_output=output/final
 aws.log.dir=log
 aws.num.nodes=5
@@ -112,15 +113,16 @@ upload-app-aws:
 # Main EMR launch.
 aws: jar upload-app-aws delete-output-aws
 	aws emr create-cluster \
-		--name "Trade recommendations 2x_FULL_SMALL" \
+		--name "Trade recommendations DEC2 EXPANDED_SMALL" \
 		--release-label ${aws.emr.release} \
 		--instance-groups '[{"InstanceCount":${aws.num.nodes},"InstanceGroupType":"CORE","InstanceType":"${aws.instance.type}"},{"InstanceCount":1,"InstanceGroupType":"MASTER","InstanceType":"${aws.instance.type}"}]' \
-	    --applications Name=Hadoop \
+	    --applications Name=HBase \
 	    --steps '[{"Args":["${job.name}","s3://${aws.bucket.name}/${aws.input}","s3://${aws.bucket.name}/${aws.output}","s3://${aws.bucket.name}/${aws.final_output}"],"Type":"CUSTOM_JAR","Jar":"s3://${aws.bucket.name}/${jar.name}","ActionOnFailure":"TERMINATE_CLUSTER","Name":"Custom JAR"}]' \
 		--log-uri s3://${aws.bucket.name}/${aws.log.dir} \
 		--use-default-roles \
 		--enable-debugging \
 		--auto-terminate
+# 		--configurations file://config/configurations.json
 
 # Download output from S3.
 download-output-aws: clean-local-output
