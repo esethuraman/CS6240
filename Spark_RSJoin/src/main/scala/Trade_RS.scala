@@ -40,8 +40,6 @@ object Trade_RS {
       .option("mode", "DROPMALFORMED")
       .load(input_path)
 
-    //  add this for filtering with re-export: || df("flow") === "Re-Export") and || df("flow") === "Re-Import"
-
     // filter on export and rename the columns
     var df_export = df.filter(df("weight_kg") =!= "" && (df("flow") === "Export" || df("flow") === "Re-Export"))
       .withColumnRenamed("quantity", "exportQuantity").withColumnRenamed("trade_usd","exportTradeUsd")
@@ -49,7 +47,7 @@ object Trade_RS {
       .withColumnRenamed("category", "exportCategory").withColumnRenamed("country_or_area", "exportCountry")
       .withColumnRenamed("commodity", "exportCommodity").withColumn("exportWeight", df("weight_kg").cast(FloatType)).drop("weight_kg")
 
-    //var df_exp = df_export.withColumn("exportWeight",col("exportWeight") + lit(2000.0)).union(df_export)
+    var df_exp = df_export.withColumn("exportWeight",col("exportWeight") + lit(2000.0)).union(df_export)
 
     // filter on import and rename the columns
     var df_import = df.filter(df("weight_kg") =!= "" && (df("flow") === "Import" || df("flow") === "Re-Import"))
@@ -61,8 +59,8 @@ object Trade_RS {
 
     // join on comm_code and year and then sort by "exportWeight" in desc order
     var df_res = df_exp.join(df_imp, Seq("comm_code", "year")).sort(desc("exportWeight"), desc("importWeight")).select("comm_code", "year", "exportCountry", "exportWeight", "importCountry", "importWeight")
-    // save the result in csv format
 
+    // save the result in csv format
     df_res.write.format("csv").save(output_path)
   }
 }
