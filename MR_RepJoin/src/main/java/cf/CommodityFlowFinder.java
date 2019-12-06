@@ -22,7 +22,7 @@ public class CommodityFlowFinder extends Configured implements Tool {
 		Job job = new Job(conf, "Replicated Join");
 		job.setJarByClass(CommodityFlowFinder.class);
 
-		job.setMapperClass(HbaseCommoditiesMapper.class);
+		job.setMapperClass(PlainCommodityMapper.class);
 //		job.setReducerClass(CommodityReducer.class);
 		job.setNumReduceTasks(0);
 
