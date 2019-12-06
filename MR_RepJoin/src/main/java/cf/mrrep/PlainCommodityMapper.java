@@ -17,6 +17,9 @@ public class PlainCommodityMapper extends Mapper<Object, Text, Text, Text> {
     private Map<String, String> exportRecords = new HashMap<String, String>();
     private String recordStr;
 
+    /*
+    Caching the data for broadcasting purpose.
+     */
     @Override
     public void setup(Context context) throws IOException,
             InterruptedException {
@@ -79,6 +82,7 @@ public class PlainCommodityMapper extends Mapper<Object, Text, Text, Text> {
 
             // filter import data
             if (flow.contains("mport")) {
+//                Export data loaded from cache.
                 for (Map.Entry<String,String> recordExport : exportRecords.entrySet())   {
 
                     String [] keyList = recordExport.getKey().split("-");

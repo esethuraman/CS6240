@@ -10,6 +10,11 @@ public class GroupingComparator extends WritableComparator {
         super(Text.class, true);
     }
 
+    /**
+     *  Input objects are of the form: 'commodityCode-year-weight'
+     *  First compares commodityCode to be sorted in ascending order. If they are same,
+     *  then year fields are being compared.
+     */
     @Override
     public int compare(WritableComparable first, WritableComparable second) {
         try {
