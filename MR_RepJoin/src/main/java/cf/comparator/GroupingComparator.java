@@ -1,4 +1,4 @@
-package cf;
+package cf.comparator;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;

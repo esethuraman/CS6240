@@ -1,4 +1,4 @@
-package cf;
+package cf.mrrep;
 
 import cf.hbase.HbaseDao;
 import org.apache.hadoop.filecache.DistributedCache;

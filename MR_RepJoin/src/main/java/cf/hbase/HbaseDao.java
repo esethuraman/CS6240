@@ -1,6 +1,7 @@
 package cf.hbase;
 
 
+import cf.config.HbaseConstants;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
@@ -20,21 +21,20 @@ public class HbaseDao {
     Connection connection;
     Admin admin;
 
-    static final String INFO = "info";
-    static final String TABLE_NAME = "trade_commodities_FULL";
-    static final String COUNTRY = "country";
-    static final String WEIGHT = "weight";
-    static final String FLOW = "flow";
+    static final String INFO = HbaseConstants.INFO;
+    static final String TABLE_NAME = HbaseConstants.TABLE_NAME;
+    static final String COUNTRY = HbaseConstants.COUNTRY;
+    static final String WEIGHT = HbaseConstants.WEIGHT;
+    static final String FLOW = HbaseConstants.FLOW;
 
     public HbaseDao() throws IOException {
 
-        String dnsName = "ec2-54-205-173-124.compute-1.amazonaws.com";
         conf = HBaseConfiguration.create();
-        conf.set("hbase.zookeeper.quorum", dnsName);
-        conf.set("hbase.zookeeper.property.clientPort", "2181");
-        conf.set("hbase.master", dnsName);
-        conf.set("hbase.master.port", "60000");
-        conf.set("hbase.rootdir", "s3://cs6240-hbase/expanded");
+        conf.set(HbaseConstants.QUORUM, HbaseConstants.DNS_NAME);
+        conf.set(HbaseConstants.ZK_PORT, HbaseConstants.ZK_PORT_NUMBER);
+        conf.set(HbaseConstants.HB_MASTER, HbaseConstants.DNS_NAME);
+        conf.set(HbaseConstants.HB_PORT, HbaseConstants.HB_PORT_NUMBER);
+        conf.set(HbaseConstants.HB_DIR, HbaseConstants.HB_ROOT_DIR);
         connection = ConnectionFactory.createConnection(conf);
         admin = connection.getAdmin();
 
