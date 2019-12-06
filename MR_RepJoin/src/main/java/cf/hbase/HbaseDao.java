@@ -21,14 +21,14 @@ public class HbaseDao {
     Admin admin;
 
     static final String INFO = "info";
-    static final String TABLE_NAME = "commodities_expanded";
+    static final String TABLE_NAME = "trade_commodities_FULL";
     static final String COUNTRY = "country";
     static final String WEIGHT = "weight";
     static final String FLOW = "flow";
 
     public HbaseDao() throws IOException {
 
-        String dnsName = "ec2-3-81-9-217.compute-1.amazonaws.com";
+        String dnsName = "ec2-54-205-173-124.compute-1.amazonaws.com";
         conf = HBaseConfiguration.create();
         conf.set("hbase.zookeeper.quorum", dnsName);
         conf.set("hbase.zookeeper.property.clientPort", "2181");
@@ -61,6 +61,24 @@ public class HbaseDao {
 //        admin.createTable(tableDescriptor);
     }
 
+    public List<String> readAllForKey(String key) throws IOException {
+        List<String> results = new ArrayList<>();
+
+        int i = 0;
+        while (true) {
+            String thisKey = key + "-" + i;
+            String result = readData(thisKey);
+            if (result != null) {
+                results.add(result);
+            } else {
+                break;
+            }
+            i++;
+        }
+
+        return results;
+    }
+
     public String readData(String rowId) throws IOException {
         try (Table table = connection.getTable(TableName.valueOf(TABLE_NAME))) {
             Get g = new Get(rowId.getBytes());
@@ -73,13 +91,20 @@ public class HbaseDao {
             byte[] country = result.getValue(INFO.getBytes(), COUNTRY.getBytes());
             byte[] weight = result.getValue(INFO.getBytes(), WEIGHT.getBytes());
 
-            return String.format(" COUNTRY: %s%nFLOW: %s%nWEIGHT: %s",
-                    new String(country),
-                    new String(flow),
-//                    new String(weight));
-                    bytesToDouble(weight));
+            if ((country != null) && (flow != null) && (weight != null)) {
+                return new String(flow) + "-" + new String(country) + "-" + bytesToDouble(weight);
+//                return String.format(" COUNTRY: %s%nFLOW: %s%nWEIGHT: %s",
+//                        new String(country),
+//                        new String(flow),
+////                    new String(weight));
+//                        bytesToDouble(weight));
+            }
+            else {
+                return null;
+            }
 
         }
+
     }
 
     private double bytesToDouble(byte[] weight) {
@@ -125,6 +150,7 @@ public class HbaseDao {
 //                System.out.println("---------------------------------------------------");
 //                netResult.append(" RESULT FOR PREFIX : ").append(result);
             }
+            resultScanner.close();
             System.out.println("Finished Printing results based on prefix.....");
         }
 //        return String.valueOf(netResult);
