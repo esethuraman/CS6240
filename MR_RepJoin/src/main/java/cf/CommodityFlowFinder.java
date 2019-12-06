@@ -22,6 +22,9 @@ public class CommodityFlowFinder extends Configured implements Tool {
 		Job job = new Job(conf, "Replicated Join");
 		job.setJarByClass(CommodityFlowFinder.class);
 
+		// use PlainCommodityMapper for Rep join without HBase
+		// job.setMapperClass(PlainCommodityMapper.class);
+
 		job.setMapperClass(HbaseCommoditiesMapper.class);
 //		job.setReducerClass(CommodityReducer.class);
 		job.setNumReduceTasks(0);
