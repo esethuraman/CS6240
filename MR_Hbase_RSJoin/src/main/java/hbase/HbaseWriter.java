@@ -1,5 +1,6 @@
 package hbase;
 
+import jdk.internal.dynalink.linker.LinkerServices;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -12,8 +13,8 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import javax.swing.plaf.synth.SynthOptionPaneUI;
 import java.io.IOException;
+import java.util.List;
 
 public class HbaseWriter extends Configured implements Tool {
 
@@ -24,15 +25,20 @@ public class HbaseWriter extends Configured implements Tool {
 
     public static void main(String[] args) throws Exception {
         System.out.println("MAIN INVOKED ");
-//        ToolRunner.run(new HbaseWriter(), args);
+        new HbaseDao().createTable();
+
+        ToolRunner.run(new HbaseWriter(), args);
 
         System.out.println("WRITE DONE.. NOW GONNA READ....");
-        String res = new HBaseReader().readDataByPrefix();
+//        String res = new HBaseReader().readDataByPrefix();
 
 //        String res = new HBaseReader().readData();
-        System.out.println("READ RESULT  " + res);
-        logger.info("READ RESULT  " + res);
-        System.out.println("donee,,....");
+
+//        List<String> res = new HBaseReader().readAllForKey();
+//
+//        System.out.println("READ RESULT  " + res);
+//        logger.info("READ RESULT  " + res);
+//        System.out.println("donee,,....");
     }
 
     @Override

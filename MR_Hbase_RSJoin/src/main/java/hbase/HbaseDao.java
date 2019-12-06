@@ -1,6 +1,8 @@
 package hbase;
 
 import models.CommodityInfo;
+import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
@@ -10,6 +12,9 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class HbaseDao {
 
@@ -18,14 +23,14 @@ public class HbaseDao {
     Admin admin;
 
     static final String INFO = "info";
-    static final String TABLE_NAME = "commodities_expanded";
+    static final String TABLE_NAME = "trade_commodities";
     static final String COUNTRY = "country";
     static final String WEIGHT = "weight";
     static final String FLOW = "flow";
 
     HbaseDao() throws IOException {
 
-        String dnsName = "ec2-3-81-9-217.compute-1.amazonaws.com";
+        String dnsName = "ec2-54-205-173-124.compute-1.amazonaws.com";
         conf = HBaseConfiguration.create();
         conf.set("hbase.zookeeper.quorum", dnsName);
         conf.set("hbase.zookeeper.property.clientPort", "2181");
@@ -39,7 +44,7 @@ public class HbaseDao {
 
     }
 
-    private void createTable() throws IOException {
+    public void createTable() throws IOException {
         /*
         https://stackoverflow.com/questions/35661843/htabledescriptortable-in-hbase-is-deprecated-and-alternative-for-that
          */
@@ -63,14 +68,27 @@ public class HbaseDao {
         System.out.println("call to write started...");
         try (Table table = connection.getTable(TableName.valueOf(TABLE_NAME))) {
 
-            Put p = new Put(rowId.getBytes());
+            int i = 0;
+            String key = rowId;
+            while(true) {
+                key += "-" + i;
+//                Check if the key is already present in hbase. if present, then key suffix has
+//                to be incremented by 1
+                if (readData(key) == null) {
+                    Put p = new Put(key.getBytes());
 
-            p.addColumn(INFO.getBytes(), FLOW.getBytes(), commodityInfo.getFlow().getBytes());
-            p.addColumn(INFO.getBytes(), COUNTRY.getBytes(), commodityInfo.getCountry().getBytes());
-            p.addColumn(INFO.getBytes(), WEIGHT.getBytes(), doubleToBytes(commodityInfo.getWeight()));
+                    p.addColumn(INFO.getBytes(), FLOW.getBytes(), commodityInfo.getFlow().getBytes());
+                    p.addColumn(INFO.getBytes(), COUNTRY.getBytes(), commodityInfo.getCountry().getBytes());
+                    p.addColumn(INFO.getBytes(), WEIGHT.getBytes(), doubleToBytes(commodityInfo.getWeight()));
 
-            table.put(p);
-            System.out.println("Data inserted with key : " + rowId);
+                    table.put(p);
+//                    System.out.println("Data inserted with key : " + rowId);
+
+                    break;
+                }
+                i++;
+            }
+
         }
 
         System.out.println("call to write finished...");
@@ -79,6 +97,25 @@ public class HbaseDao {
 //        System.out.println("******************************************");
     }
 
+
+    public List<String> readAllForKey(String key) throws IOException {
+        List<String> results = new ArrayList<>();
+
+        int i = 0;
+        while (true) {
+            key += "-" + i;
+            System.out.println("------- keyy" + key);
+            String result = readData(key);
+            if (result != null) {
+                results.add(result);
+            } else {
+                break;
+            }
+            i++;
+        }
+
+        return results;
+    }
 
     public String readData(String rowId) throws IOException {
         try (Table table = connection.getTable(TableName.valueOf(TABLE_NAME))) {
@@ -92,11 +129,18 @@ public class HbaseDao {
             byte[] country = result.getValue(INFO.getBytes(), COUNTRY.getBytes());
             byte[] weight = result.getValue(INFO.getBytes(), WEIGHT.getBytes());
 
-            return String.format(" COUNTRY: %s%nFLOW: %s%nWEIGHT: %s",
-                    new String(country),
-                    new String(flow),
+            System.out.println("RESULT ------- " + result);
+            System.out.println(country + " -- " + flow + " -- " + weight);
+            if ((country != null) && (flow != null) && (weight != null)) {
+                return String.format(" COUNTRY: %s%nFLOW: %s%nWEIGHT: %s",
+                        new String(country),
+                        new String(flow),
 //                    new String(weight));
-                    bytesToDouble(weight));
+                        bytesToDouble(weight));
+            }
+            else {
+                return null;
+            }
 
         }
     }

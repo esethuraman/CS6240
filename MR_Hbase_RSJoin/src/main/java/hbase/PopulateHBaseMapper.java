@@ -29,29 +29,17 @@ public class PopulateHBaseMapper extends  Mapper<Object, Text, Text, Text> {
                 .replace(", ", " ")
                 .split(",");
 
-        System.out.println("BEFORE TRY IN MAPPER....");
         try {
             CommodityInfo commodityInfo = getCommodityInfo(contents);
-            System.out.println("MAPPER CALL INVOKED........");
-//            Ignoring noise and processing only valid data
-            if (commodityInfo != null) {
+
+//            Only export data are persisted in Hbase
+            if ((commodityInfo != null) && (commodityInfo.getFlow().contains("xport"))) {
                 Text mapKey = getMapperEmitKey(commodityInfo);
                 Text mapValue = getMapperEmitValue(commodityInfo);
                 context.write(mapKey, mapValue);
-//                context.write(mapKey, new Text("THIS IS FROM NEW "));
 
-                System.out.println("INVOKED HBASE CALL....");
                 hbaseDao.writeData(mapKey.toString(), commodityInfo);
-                System.out.println("HBASE CALL FINISHED....");
 
-
-//                Data expansion.
-                for (int i = 2; i <= 3; i++) {
-                    commodityInfo.setWeight(commodityInfo.getWeight() + 1000 * i);
-                    mapKey = getMapperEmitKey(commodityInfo);
-                    mapValue = getMapperEmitValue((commodityInfo));
-                    context.write(mapKey, mapValue);
-                }
 
             }
         } catch (Exception e) {
@@ -71,9 +59,9 @@ public class PopulateHBaseMapper extends  Mapper<Object, Text, Text, Text> {
 
         return new Text(String.join("-",
                 commodityInfo.getCode(),
-                String.valueOf(commodityInfo.getYear()),
-                String.valueOf(commodityInfo.getWeight())
-        ));
+                String.valueOf(commodityInfo.getYear()))
+//                String.valueOf(commodityInfo.getWeight())
+        );
     }
 
     /**
