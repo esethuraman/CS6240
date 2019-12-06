@@ -39,9 +39,6 @@ public class HbaseDao {
         conf.set("hbase.rootdir", "s3://cs6240-hbase/expanded");
         connection = ConnectionFactory.createConnection(conf);
         admin = connection.getAdmin();
-
-//        createTable();
-
     }
 
     public void createTable() throws IOException {
@@ -55,12 +52,7 @@ public class HbaseDao {
                 .newBuilder(Bytes.toBytes(INFO));
         tableDescriptorBuilder.setColumnFamily(familyDescriptorBuilder.build());
 
-
-//        HTableDescriptor tableDescriptor = new HTableDescriptor(table);
-//        tableDescriptor.addFamily(new HColumnDescriptor(INFO));
-
         admin.createTable(tableDescriptorBuilder.build());
-//        admin.createTable(tableDescriptor);
     }
 
     public void writeData(String rowId, CommodityInfo commodityInfo) throws IOException {
@@ -82,19 +74,12 @@ public class HbaseDao {
                     p.addColumn(INFO.getBytes(), WEIGHT.getBytes(), doubleToBytes(commodityInfo.getWeight()));
 
                     table.put(p);
-//                    System.out.println("Data inserted with key : " + rowId);
-
                     break;
                 }
                 i++;
             }
-
         }
-
         System.out.println("call to write finished...");
-
-//        System.out.println("Data successsfully inserted.....");
-//        System.out.println("******************************************");
     }
 
 
@@ -121,7 +106,6 @@ public class HbaseDao {
         try (Table table = connection.getTable(TableName.valueOf(TABLE_NAME))) {
             Get g = new Get(rowId.getBytes());
             Result result = table.get(g);
-            System.out.println("----------------------------------------------------");
 
             System.out.println( " DATA FOR ROW : " + new String(rowId));
 
@@ -135,7 +119,6 @@ public class HbaseDao {
                 return String.format(" COUNTRY: %s%nFLOW: %s%nWEIGHT: %s",
                         new String(country),
                         new String(flow),
-//                    new String(weight));
                         bytesToDouble(weight));
             }
             else {
@@ -174,14 +157,11 @@ public class HbaseDao {
                 byte[] c = result.getValue(Bytes.toBytes(INFO), Bytes.toBytes(COUNTRY));
                 byte[] w = result.getValue(Bytes.toBytes(INFO), Bytes.toBytes(WEIGHT));
 
-//                System.out.println("---------------------------------------------------");
                 netResult
                         .append("\n")
                         .append(new String(f)).append("  <> ")
                         .append(new String(c)).append(" <> ")
                         .append(bytesToDouble(w));
-//                System.out.println("---------------------------------------------------");
-//                netResult.append(" RESULT FOR PREFIX : ").append(result);
             }
             System.out.println("Finished Printing results based on prefix.....");
         }

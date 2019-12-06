@@ -21,8 +21,6 @@ public class CommoditiesFlowFinder extends Configured implements Tool {
         final Configuration jobConf = job.getConfiguration();
         jobConf.set("mapreduce.output.textoutputformat.separator", "\t");
 
-//        job.setMapperClass(CommoditiesMapper.class);
-//        job.setReducerClass(CommoditiesReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
 

@@ -30,15 +30,6 @@ public class HbaseWriter extends Configured implements Tool {
         ToolRunner.run(new HbaseWriter(), args);
 
         System.out.println("WRITE DONE.. NOW GONNA READ....");
-//        String res = new HBaseReader().readDataByPrefix();
-
-//        String res = new HBaseReader().readData();
-
-//        List<String> res = new HBaseReader().readAllForKey();
-//
-//        System.out.println("READ RESULT  " + res);
-//        logger.info("READ RESULT  " + res);
-//        System.out.println("donee,,....");
     }
 
     @Override

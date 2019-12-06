@@ -30,15 +30,9 @@ public class HBaseHandson
 
         createTable(admin);
     
-//        listTables(admin);
-
         createData(connection, admin);
 
         readData(connection);
-
-//        readAllRows(connection);
-        
-
     }
 
     private static void readAllRows(Connection connection) throws IOException {
