@@ -46,7 +46,6 @@ object Trade_RS {
       .withColumnRenamed("quantity_name", "exportQuantityName").withColumnRenamed("flow", "exportFlow")
       .withColumnRenamed("category", "exportCategory").withColumnRenamed("country_or_area", "exportCountry")
       .withColumnRenamed("commodity", "exportCommodity").withColumn("exportWeight", df("weight_kg").cast(FloatType)).drop("weight_kg")
-
     var df_exp = df_export.withColumn("exportWeight",col("exportWeight") + lit(2000.0)).union(df_export)
 
     // filter on import and rename the columns
@@ -64,6 +63,3 @@ object Trade_RS {
     df_res.write.format("csv").save(output_path)
   }
 }
-
-//val spark: Nothing = org.apache.spark.sql.SparkSession.builder.master("local").appName("Spark CSV Reader").getOrCreate
-//var df = spark.read.format("csv").option("header", "true").option("mode", "DROPMALFORMED").load("Documents/MR_practice/comm_code_10410.csv")
