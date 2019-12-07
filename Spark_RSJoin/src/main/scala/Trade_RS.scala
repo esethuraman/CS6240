@@ -46,6 +46,8 @@ object Trade_RS {
       .withColumnRenamed("quantity_name", "exportQuantityName").withColumnRenamed("flow", "exportFlow")
       .withColumnRenamed("category", "exportCategory").withColumnRenamed("country_or_area", "exportCountry")
       .withColumnRenamed("commodity", "exportCommodity").withColumn("exportWeight", df("weight_kg").cast(FloatType)).drop("weight_kg")
+
+    // create a temporary dataframe with weight = weight+2000 based off df_export and union it with df_export
     var df_exp = df_export.withColumn("exportWeight",col("exportWeight") + lit(2000.0)).union(df_export)
 
     // filter on import and rename the columns
@@ -54,9 +56,11 @@ object Trade_RS {
       .withColumnRenamed("quantity_name", "importQuantityName").withColumnRenamed("flow", "importFlow")
       .withColumnRenamed("category", "importCategory").withColumnRenamed("country_or_area", "importCountry")
       .withColumnRenamed("commodity", "importCommodity").withColumn("importWeight", df("weight_kg").cast(FloatType)).drop("weight_kg")
+
+    // create a temporary dataframe with weight = weight+3000 based off df_import and union it with df_import
     var df_imp = df_import.withColumn("importWeight",col("importWeight") + lit(3000.0)).union(df_import)
 
-    // join on comm_code and year and then sort by "exportWeight" in desc order
+    // join on comm_code and year and then sort by "exportWeight" and "importWeight" in desc order and select only few columns
     var df_res = df_exp.join(df_imp, Seq("comm_code", "year")).sort(desc("exportWeight"), desc("importWeight")).select("comm_code", "year", "exportCountry", "exportWeight", "importCountry", "importWeight")
 
     // save the result in csv format
