@@ -1,0 +1,11 @@
+[{
+  "Classification": "hbase-site",
+  "Properties": {
+    "hbase.rootdir": "s3://cs6240-hbase/expanded"}
+},
+  {
+    "Classification": "hbase",
+    "Properties": {
+      "hbase.emr.storageMode":"s3"}
+  }
+]
