@@ -48,7 +48,6 @@ object Trade_Rep {
       .withColumnRenamed("quantity_name", "exportQuantityName").withColumnRenamed("flow", "exportFlow")
       .withColumnRenamed("category", "exportCategory").withColumnRenamed("country_or_area", "exportCountry")
       .withColumnRenamed("commodity", "exportCommodity").withColumn("exportWeight", df("weight_kg").cast(FloatType)).drop("weight_kg")
-//    var df_exp = df_export.withColumn("exportWeight",col("exportWeight") + lit(2000.0)).union(df_export)
 
     // filter on import and rename the columns
     var df_import = df.filter(df("weight_kg") =!= "" && (df("flow") === "Import" || df("flow") === "Re-Import"))
