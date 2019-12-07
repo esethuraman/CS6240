@@ -13,10 +13,10 @@ public class CommoditiesMapper
      */
     @Override
     public void map(final Object key, final Text value, final Context context) throws IOException, InterruptedException {
-			/*Tokenizing the input value based on comma. For this dataset, there will always be two
-			tokens. Those tokens are followerId and userId.*/
+        /*Tokenizing the input value based on comma. For this dataset, there will always be two
+        tokens. Those tokens are followerId and userId.*/
 
-//			id,country_or_area,year,comm_code,commodity,flow,trade_usd,weight_kg,quantity_name,quantity,category
+        //	id,country_or_area,year,comm_code,commodity,flow,trade_usd,weight_kg,quantity_name,quantity,category
         String[] contents = value
                 .toString()
                 .replace(", ", " ")
@@ -24,13 +24,13 @@ public class CommoditiesMapper
 
         try {
             CommodityInfo commodityInfo = getCommodityInfo(contents);
-//            Ignoring noise and processing only valid data
+//          Ignoring noise and processing only valid data
             if (commodityInfo != null) {
                 Text mapKey = getMapperEmitKey(commodityInfo);
                 Text mapValue = getMapperEmitValue(commodityInfo);
                 context.write(mapKey, mapValue);
 
-//                Data expansion.
+//              Data expansion.
                 for (int i = 0; i < 2; i++) {
                     commodityInfo.setWeight(Math.random() * 1000000);
                     mapKey = getMapperEmitKey(commodityInfo);
@@ -40,10 +40,8 @@ public class CommoditiesMapper
 
             }
         } catch (Exception e) {
-//                No quantity type commodities are silently ignored using exception
+//        No quantity type commodities are silently ignored using exception
         }
-
-
     }
 
     /**

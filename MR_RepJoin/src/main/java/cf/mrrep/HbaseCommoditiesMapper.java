@@ -1,4 +1,4 @@
-package cf;
+package cf.mrrep;
 
 import cf.hbase.HbaseDao;
 import org.apache.hadoop.filecache.DistributedCache;
@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 public class HbaseCommoditiesMapper extends Mapper<Object, Text, Text, Text> {
-    //		private HashSet<String> exportRecords = new HashSet<String>();
 
     static HbaseDao dao;
 
@@ -42,9 +41,12 @@ public class HbaseCommoditiesMapper extends Mapper<Object, Text, Text, Text> {
 
                 String hbaseKeyPrefix = String.join("-", commCode, year);
                 System.out.println("=====> THIS ONE " +  hbaseKeyPrefix + " -- " + flow);
-                // FILTER_IMPORT
+
+//                Import vs  Export cartesian product on key prefix commodityCode and year
+//                FILTER_IMPORT
                 if (flow.contains("mport")) {
-//                System.out.println(" IMPORT DATA .... " + hbaseKeyPrefix);
+
+//                    Export Data loaded from Hbase
                     for (String exportData: dao.readAllForKey(hbaseKeyPrefix))   {
 //                    System.out.println(" EXPORT DATA .... ");
                         try {

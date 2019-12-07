@@ -1,5 +1,6 @@
 package cf;
 
+import cf.mrrep.HbaseCommoditiesMapper;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.filecache.DistributedCache;
@@ -21,6 +22,9 @@ public class CommodityFlowFinder extends Configured implements Tool {
 		Configuration conf = new Configuration();
 		Job job = new Job(conf, "Replicated Join");
 		job.setJarByClass(CommodityFlowFinder.class);
+
+		// use PlainCommodityMapper for Rep join without HBase
+		// job.setMapperClass(PlainCommodityMapper.class);
 
 		job.setMapperClass(HbaseCommoditiesMapper.class);
 //		job.setReducerClass(CommodityReducer.class);

@@ -1,4 +1,4 @@
-package cf;
+package cf.comparator;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
@@ -10,6 +10,11 @@ public class KeyComparator extends WritableComparator {
         super(Text.class, true);
     }
 
+    /**
+     *  Input objects are of the form: 'commodityCode-year-weight'
+     *  First compares commodityCode to be sorted in ascending order. If they are same,
+     *  then years are being compared. If year fields are same, then weights are compared.
+     */
     @Override
     public int compare(WritableComparable first, WritableComparable second) {
         try {

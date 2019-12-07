@@ -1,4 +1,4 @@
-package cf;
+package cf.mrrep;
 
 import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.Path;
@@ -12,10 +12,14 @@ import java.util.StringTokenizer;
 
 // Mapper class performing the map tasks to join on comm_code and year
 public class PlainCommodityMapper extends Mapper<Object, Text, Text, Text> {
-    //		private HashSet<String> exportRecords = new HashSet<String>();
+
+    // hashmap to store the export data
     private Map<String, String> exportRecords = new HashMap<String, String>();
     private String recordStr;
 
+    /*
+    Caching the data for broadcasting purpose.
+     */
     @Override
     public void setup(Context context) throws IOException,
             InterruptedException {
@@ -40,18 +44,15 @@ public class PlainCommodityMapper extends Mapper<Object, Text, Text, Text> {
                 while ((line = rdr.readLine()) != null) {
 
                     line = line.replace(", ", " ");
-//							logger.info("map");
-//							logger.info("here is the line:"+line+":ends");
                     String [] lineList = line.split(",");
                     String country = lineList[0];
                     String year = lineList[1];
                     String commCode = lineList[2];
                     String commodity = lineList[3];
                     String flow = lineList[4];
-//							String trade_usd = lineList[5];
                     String weight = lineList[6];
 
-                    // FILTER_EXPORT
+                    // filter export data
                     if (flow.contains("xport")) {
                         flow = "Export";
                         exportRecords.put(commCode+"-"+year+"-"+weight,
@@ -76,15 +77,14 @@ public class PlainCommodityMapper extends Mapper<Object, Text, Text, Text> {
             String country = recordStrList[0];
             String year = recordStrList[1];
             String commCode = recordStrList[2];
-//				String commodity = recordStrList[3];
             String flow = recordStrList[4];
             String weight = recordStrList[6];
 
-            // FILTER_IMPORT
+            // filter import data
             if (flow.contains("mport")) {
+//                Export data loaded from cache.
                 for (Map.Entry<String,String> recordExport : exportRecords.entrySet())   {
 
-//						System.out.printf(" KEY %s VALUE %s%n", recordExport.getKey(), recordExport.getValue());
                     String [] keyList = recordExport.getKey().split("-");
                     String [] valueList = recordExport.getValue().split("-");
 
@@ -102,7 +102,7 @@ public class PlainCommodityMapper extends Mapper<Object, Text, Text, Text> {
                                     new Text(countryExport+"-"+weightExport+"-"+country+"-"+weight));
                         }
                     } catch (ArrayIndexOutOfBoundsException e) {
-
+			// to avoid inconsistent data
                     }
 
                 }

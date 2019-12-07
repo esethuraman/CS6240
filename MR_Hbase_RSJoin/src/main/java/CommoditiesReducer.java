@@ -34,9 +34,6 @@ public class CommoditiesReducer extends Reducer<Text, Text, Text, Text> {
                 context.write(key, value);
             }
         }
-
-
-
     }
 
     private CommodityInfo parseReducerValue(Text value) {
