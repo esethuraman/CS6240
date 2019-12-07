@@ -40,15 +40,12 @@ object Trade_Rep {
       .option("mode", "DROPMALFORMED")
       .load(input_path)
 
-    //  add this for filtering with re-export: || df("flow") === "Re-Export") and || df("flow") === "Re-Import"
-
     // filter on export and rename the columns
     var df_export = df.filter(df("weight_kg") =!= "" && (df("flow") === "Export" || df("flow") === "Re-Export"))
       .withColumnRenamed("quantity", "exportQuantity").withColumnRenamed("trade_usd","exportTradeUsd")
       .withColumnRenamed("quantity_name", "exportQuantityName").withColumnRenamed("flow", "exportFlow")
       .withColumnRenamed("category", "exportCategory").withColumnRenamed("country_or_area", "exportCountry")
       .withColumnRenamed("commodity", "exportCommodity").withColumn("exportWeight", df("weight_kg").cast(FloatType)).drop("weight_kg")
-//    var df_exp = df_export.withColumn("exportWeight",col("exportWeight") + lit(2000.0)).union(df_export)
 
     // filter on import and rename the columns
     var df_import = df.filter(df("weight_kg") =!= "" && (df("flow") === "Import" || df("flow") === "Re-Import"))
@@ -57,7 +54,7 @@ object Trade_Rep {
       .withColumnRenamed("category", "importCategory").withColumnRenamed("country_or_area", "importCountry")
       .withColumnRenamed("commodity", "importCommodity").withColumn("importWeight", df("weight_kg").cast(FloatType)).drop("weight_kg")
 
-    // join on comm_code and year and then sort by "exportWeight" in desc order
+    // perform a broadcast join on comm_code and year and then sort by "exportWeight" and "importWeight" in desc order and select only few columns
     var df_res = df_export.join(broadcast(df_import), Seq("comm_code", "year")).sort(desc("exportWeight"), desc("importWeight")).select("comm_code", "year", "exportCountry", "exportWeight", "importCountry", "importWeight")
 
     // save the result in csv format
